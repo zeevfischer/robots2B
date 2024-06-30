@@ -108,7 +108,7 @@ def main():
     reference_info, reference_id = process_img(reference_image_path)
 
     # Initialize the USB camera
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
         print("Error: Could not open video stream from USB camera.")
