@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import pandas as pd
 
 # Define camera parameters (same as before)
 camera_resolution = (1280, 720)  # 720p
@@ -24,18 +25,67 @@ def calculate_3d_info(rvec, tvec):
     return distance, np.degrees(yaw), np.degrees(pitch), np.degrees(roll)
 
 # Function to process image and extract Aruco marker info (same as before)
-def process_img(image_path):
+# def process_img(image_path):
+#     image = cv2.imread(image_path)
+#     if image is None:
+#         raise ValueError(f"Image at {image_path} could not be loaded")
+#
+#     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+#     corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
+#     if ids is not None:
+#         rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[0], 0.05, camera_matrix, dist_coeffs)
+#         return calculate_3d_info(rvec[0], tvec[0]), ids[0][0]
+#     else:
+#         raise ValueError("No Aruco markers found in the image")
+def process_img(image_path, output_csv, output_image):
+    output = None
+    # Load the image
     image = cv2.imread(image_path)
     if image is None:
         raise ValueError(f"Image at {image_path} could not be loaded")
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
+
+    # List to store the output data for CSV
+    output_data = []
+
     if ids is not None:
-        rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[0], 0.05, camera_matrix, dist_coeffs)
-        return calculate_3d_info(rvec[0], tvec[0]), ids[0][0]
-    else:
-        raise ValueError("No Aruco markers found in the image")
+        for i in range(len(ids)):
+            rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners[i], 0.05, camera_matrix, dist_coeffs)
+
+            # Draw the marker and axis
+            cv2.aruco.drawDetectedMarkers(image, corners, ids)
+            cv2.drawFrameAxes(image, camera_matrix, dist_coeffs, rvec, tvec, 0.1)
+
+            # Extract 2D corner points
+            corner_points = corners[i][0]
+            corner_points_list = corner_points.tolist()
+
+            # Draw rectangle around the QR code
+            pts = np.array(corner_points, np.int32)
+            pts = pts.reshape((-1, 1, 2))
+            cv2.polylines(image, [pts], True, (0, 255, 0), 2)
+            # Add QR ID text
+            cv2.putText(image, f"ID: {ids[i][0]}", (int(corner_points[0][0]), int(corner_points[0][1] - 10)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2, cv2.LINE_AA)
+
+            # Calculate 3D pose information using the improved method
+            output = calculate_3d_info(rvec, tvec)
+            distance, yaw, pitch, roll = calculate_3d_info(rvec, tvec)
+
+            # Append data to the output list
+            output_data.append([ids[i][0], corner_points_list, distance, yaw, pitch, roll])
+
+        # Save the image with detected QR codes
+        cv2.imwrite(output_image, image)
+
+    # Write the output data to CSV
+    columns = ['QR ID', 'QR 2D (Corner Points)', 'Distance', 'Yaw (degrees)', 'Pitch (degrees)', 'Roll (degrees)']
+    df = pd.DataFrame(output_data, columns=columns)
+    df.to_csv(output_csv, index=False)
+
+    return output, ids[0]
 
 # Function to process the live video frame and get the Aruco marker info
 def process_frame(frame):
@@ -74,7 +124,7 @@ def calculate_movement_commands(reference_info, current_info):
         else:
             distance_command = "backward"
 
-    if abs(pitch_diff) > 21:
+    if abs(pitch_diff) > 2:
         if pitch_diff > 0:
             pitch_command = "down"
         else:
@@ -105,10 +155,14 @@ def draw_arrows(frame, yaw_command, distance_command, pitch_command):
 def main():
     # Load reference image and get the Aruco marker info
     reference_image_path = 'data\\2B\\3.jpg'
-    reference_info, reference_id = process_img(reference_image_path)
+    output_image = 'output\\img\\output_image_with_markers.jpg'
+    output_csv = 'output\\output_data.csv'
+
+    # process_img(image_path, output_csv, output_image)
+    reference_info, reference_id = process_img(reference_image_path,output_csv,output_image)
 
     # Initialize the USB camera
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
 
     if not cap.isOpened():
         print("Error: Could not open video stream from USB camera.")
