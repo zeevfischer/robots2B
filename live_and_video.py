@@ -86,67 +86,75 @@ def setup_directories(directories):
 # Function to calculate yaw, pitch, and distance movement commands
 def calculate_movement_commands(reference_info, current_info):
     commands = []
-    for i in range(len(reference_info)):
-        ref_distance = reference_info[i][3]
-        ref_yaw = reference_info[i][4]
-        ref_pitch = reference_info[i][5]
+    for i in range(len(current_info)):
+        for j in range(len(reference_info)):
+            #for every aruco we see we analyze if we have commands for it
+            what_i_see = int(current_info[i][0])
+            what_we_referance = int(reference_info[j][1])
+            if what_i_see == what_we_referance:
 
-        # Extract values from current_info
-        cur_distance = current_info[i][1]
-        cur_yaw = current_info[i][2]
-        cur_pitch = current_info[i][3]
+                ref_distance = reference_info[j][3]
+                ref_yaw = reference_info[j][4]
+                ref_pitch = reference_info[j][5]
 
-        # Calculate differences
-        distance_diff = ref_distance - cur_distance
-        yaw_diff = ref_yaw - cur_yaw
-        pitch_diff = ref_pitch - cur_pitch
-        if abs(distance_diff) > 20:
-            distance_diff = 0.4
-        if abs(yaw_diff) > 20:
-            yaw_diff = 2
-        if abs(pitch_diff) > 20:
-            yaw_diff = 9
+                # Extract values from current_info
+                cur_distance = current_info[i][1]
+                cur_yaw = current_info[i][2]
+                cur_pitch = current_info[i][3]
 
-        # Print values
-        print(f"Reference Info - aruco: {current_info[i][0]:.2f} Distance: {ref_distance:.2f}, Yaw: {ref_yaw:.2f}, Pitch: {ref_pitch:.2f}")
-        print(f"Current Info   - aruco: {current_info[i][0]:.2f} Distance: {cur_distance:.2f}, Yaw: {cur_yaw:.2f}, Pitch: {cur_pitch:.2f}")
-        print(f"Differences    - aruco: {current_info[i][0]:.2f} Distance: {distance_diff:.2f}, Yaw: {yaw_diff:.2f}, Pitch: {pitch_diff:.2f}")
+                # Calculate differences
+                distance_diff = ref_distance - cur_distance
+                yaw_diff = ref_yaw - cur_yaw
+                pitch_diff = ref_pitch - cur_pitch
+                if abs(distance_diff) > 20:
+                    distance_diff = 0.4
+                if abs(yaw_diff) > 20:
+                    yaw_diff = 2
+                if abs(pitch_diff) > 20:
+                    yaw_diff = 9
 
-        yaw_command = None
-        distance_command = None
-        pitch_command = None
+                # Print values
+                print(f"Reference Info - aruco: {current_info[i][0]:.2f} Distance: {ref_distance:.2f}, Yaw: {ref_yaw:.2f}, Pitch: {ref_pitch:.2f}")
+                print(f"Current Info   - aruco: {current_info[i][0]:.2f} Distance: {cur_distance:.2f}, Yaw: {cur_yaw:.2f}, Pitch: {cur_pitch:.2f}")
+                print(f"Differences    - aruco: {current_info[i][0]:.2f} Distance: {distance_diff:.2f}, Yaw: {yaw_diff:.2f}, Pitch: {pitch_diff:.2f}")
 
-        if abs(yaw_diff) > 10:
-            if yaw_diff > 0:
-                yaw_command = "right"
-            else:
-                yaw_command = "left"
+                yaw_command = None
+                distance_command = None
+                pitch_command = None
 
-        if abs(distance_diff) > 0.1:
-            if distance_diff < 0:
-                distance_command = "forward"
-            else:
-                distance_command = "backward"
+                if abs(yaw_diff) > 10:
+                    if yaw_diff > 0:
+                        yaw_command = "right"
+                    else:
+                        yaw_command = "left"
 
-        if abs(pitch_diff) > 15:
-            if pitch_diff > 0:
-                pitch_command = "down"
-            else:
-                pitch_command = "up"
-        command = [current_info[i][0] ,yaw_command, distance_command, pitch_command]
-        commands.append(command)
+                if abs(distance_diff) > 0.1:
+                    if distance_diff < 0:
+                        distance_command = "forward"
+                    else:
+                        distance_command = "backward"
+
+                if abs(pitch_diff) > 15:
+                    if pitch_diff > 0:
+                        pitch_command = "down"
+                    else:
+                        pitch_command = "up"
+                command = [current_info[i][0] ,yaw_command, distance_command, pitch_command]
+                commands.append(command)
 
     return commands
 
 # Function to draw directions on the frame
 # def draw_directions(frame, yaw_command, distance_command, pitch_command,aruco,frame_id_video):
-def draw_directions(frame, commands, aruco, frame_id_video):
+def draw_directions(frame, commands):
     height, width, _ = frame.shape
     text_position = (50, height - 50)  # Starting position for the text
 
     for i in range(len(commands)):
 
         direction_text = ""
+        if commands[i][0]:
+            direction_text += f"aruco: {commands[i][0]}  "
         if commands[i][1]:
             direction_text += f"Yaw: {commands[i][1]}  "
         if commands[i][2]:
@@ -156,10 +164,10 @@ def draw_directions(frame, commands, aruco, frame_id_video):
 
         cv2.putText(frame, direction_text,(50, height - 50 + (i * 30)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2, cv2.LINE_AA)
 
-    if direction_text == "":
-        return True
-    else:
-        return False
+        if direction_text == "" or direction_text == f"aruco: {commands[i][0]}  ":
+            return True
+        else:
+            return False
 
 # Function to process live frame
 def process_live_frame(frame, frame_id, csv_file, output_frames_dir, reference_info):
@@ -201,27 +209,33 @@ def process_live_frame(frame, frame_id, csv_file, output_frames_dir, reference_i
         frame_filename = os.path.join(output_frames_dir, f'frame_{frame_id}.jpg')
         cv2.imwrite(frame_filename, frame)
 
-        # Calculate movement commands to align the camera with the reference image
-        temp = [] # this is ids
+
+        #ids is what the frame detects !!!!
+
+        comands = calculate_movement_commands(reference_info, current_info)
+        next = draw_directions(frame, comands)
+
+        # # Calculate movement commands to align the camera with the reference image
+        # temp = [] # this is ids
         temp1 = [] # this is referanced
-        for x in range(len(ids)):
-            temp.append(int(ids[x][0]))
+        # for x in range(len(ids)):
+        #     temp.append(int(ids[x][0]))
         for j in range(len(reference_info)):
             temp1.append(reference_info[j][1])
-
-        temp = sorted(temp)
-        temp1 =  sorted(temp1)
-
-        if len(temp1) < len(temp): # we see more then we need
-            common_elements = [element for element in temp if element in temp1]
-
-        if len(temp) == len(temp1) and temp == temp1:
-            # current_info = (temp, distance, yaw, pitch, roll)
-            comands = calculate_movement_commands(reference_info, current_info)
-            next = draw_directions(frame, comands, temp, reference_info[0][0])
-        else:
-            next = False
-
+        #
+        # temp = sorted(temp)
+        # temp1 =  sorted(temp1)
+        #
+        # if len(temp1) < len(temp): # we see more then we need
+        #     common_elements = [element for element in temp if element in temp1]
+        #
+        # if len(temp) == len(temp1) and temp == temp1:
+        #     # current_info = (temp, distance, yaw, pitch, roll)
+        #     comands = calculate_movement_commands(reference_info, current_info)
+        #     next = draw_directions(frame, comands, temp, reference_info[0][0])
+        # else:
+        #     next = False
+        #
         # Add frame number and Aruco ID to the top left corner
         info_text = f"Frame ID: {reference_info[0][0]} Aruco ID: {temp1}"
         cv2.putText(frame, info_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2, cv2.LINE_AA)
@@ -401,7 +415,7 @@ output_directories = ['output', 'output\\img', 'output\\frames']
 output_frames_dir = 'output\\img'
 output_video = 'output\\vid\\output_video.avi'
 output_csv_video = 'data\\output_data_video.csv'
-video_path = 'data\\vid2.mp4'
+video_path = 'data\\vid1.mp4'
 
 # Set up directories
 setup_directories(output_directories)
