@@ -17,29 +17,19 @@ This project focuses on real-time ArUco marker detection and pose estimation usi
 - Frame-by-frame analysis and visualization
 
 ## Requirements
+- Process each frame in real-time (under 30 ms).
+- Use Tello's camera parameters: 720p resolution, 82.6 FoV
 - Python 3.x
 - OpenCV (cv2) with ArUco module
 - NumPy
 - Pandas
 
-## Setup
-1. Ensure all required libraries are installed:
-pip install opencv-contrib-python numpy pandas
-2. Set up the following directory structure:
-project_root/
-├── data/
-│   └── output_data_video.csv
-├── output/
-│   ├── img/
-│   ├── frames/
-│   └── vid/
-└── final.py
-
-## Usage
-1. Run the script:python final.py
-2. The program will access the camera (default is camera index 1, change if necessary).
-3. It will process the live feed, detecting ArUco markers and displaying the results in real-time.
-4. Press 'q' to quit the program.
+## How To Run
+1. Basic understanding of running code is required.
+2. Ensure all necessary libraries are installed. If you encounter issues with cv2, use pip install opencv-contrib-python.
+3. Use PyCharm or any other Python IDE to open the workspace.
+4. Download the repository and place final.py and the data and output directories into your Python workspace.
+5. Ensure all files are in the same workspace, or update the paths in the code to match your directory structure
 
 ## Key Functions
 - `calculate_3d_info`: Calculates distance, yaw, pitch, and roll from pose vectors.
