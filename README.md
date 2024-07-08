@@ -3,7 +3,7 @@
 ## Authors
 - Zeev Fischer: 318960242
 - Eden Mor: 316160332
-- Daniel Musai: 206684755
+- Danielle Musai: 206684755
 
 ## Project Overview
 This project focuses on real-time ArUco marker detection and pose estimation using a camera feed. It processes live video input to detect ArUco markers, calculate their 3D pose, and provide movement commands to align the camera with a reference image.
