@@ -58,7 +58,4 @@ project_root/
 - Adjust the camera index in `cv2.VideoCapture(1)` if necessary.
 - The reference information is read from `data/output_data_video.csv`.
 
-## Troubleshooting
-- If facing issues with OpenCV, try reinstalling with:pip install opencv-contrib-python
-- Ensure all directories exist before running the script.
-- Check camera permissions if the video feed doesn't start.
+
