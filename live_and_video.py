@@ -136,7 +136,7 @@ def calculate_movement_commands(reference_info, current_info):
                     else:
                         distance_command = "backward"
 
-                if abs(pitch_diff) > 15:
+                if abs(pitch_diff) > 25:
                     if pitch_diff < 0:
                         pitch_command = "down"
                     else:
@@ -377,7 +377,7 @@ output_directories = ['output', 'output\\img', 'output\\frames']
 output_frames_dir = 'output\\img'
 output_video = 'output\\vid\\output_video.avi'
 output_csv_video = 'data\\output_data_video.csv'
-video_path = 'data\\vid4.mp4'
+video_path = 'data\\vid5.mp4'
 
 # Set up directories
 # setup_directories(output_directories)
