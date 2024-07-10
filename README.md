@@ -6,6 +6,10 @@
 - Danielle Musai: 206684755
 
 ## Project Overview
+There are 3 files in this reposetory:
+1. compare_image_to_stream: This is what we were asked to do for the presentation. This is what needs to be tested.   
+2. compare_video_to_stream: This takes a video instead of an image and gives you directions to follow the video. This is what we thought we needed to do.   
+3. The last file is a past version of compare_video_to_stream that I saved.   
 This project focuses on real-time ArUco marker detection and pose estimation using a camera feed. It processes live video input to detect ArUco markers, calculate their 3D pose, and provide movement commands to align the camera with a reference image.
 
 ## Features
@@ -25,6 +29,7 @@ This project focuses on real-time ArUco marker detection and pose estimation usi
 - Pandas
 
 ## How To Run
+**NOTE: For this code, there are some path folders that you need to check and update to match your computer path.!!!**   
 1. Basic understanding of running code is required.
 2. Ensure all necessary libraries are installed. If you encounter issues with cv2, use pip install opencv-contrib-python.
 3. Use PyCharm or any other Python IDE to open the workspace.
