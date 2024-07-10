@@ -51,7 +51,7 @@ This project focuses on real-time ArUco marker detection and pose estimation usi
 
 ## Notes
 - The code uses camera parameters for a 720p resolution and 82.6° Field of View.
-- Adjust the camera index in `cv2.VideoCapture(1)` if necessary.
+- Adjust the camera index in `cv2.VideoCapture(1)` if necessary because we connected an external camera for better handeling.
 - The reference information is read from `data/output_data_video.csv`.
 
 
