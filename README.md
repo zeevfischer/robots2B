@@ -30,6 +30,7 @@ This project focuses on real-time ArUco marker detection and pose estimation usi
 - Pandas
 
 ## How To Run
+**NOTE: Adjust the camera index in `cv2.VideoCapture(1)` if necessary because we connected an external camera for better handeling.**   
 **NOTE: For this code, there are some path folders that you need to check and update to match your computer path.!!!**   
 1. Basic understanding of running code is required.
 2. Ensure all necessary libraries are installed. If you encounter issues with cv2, use pip install opencv-contrib-python.
@@ -51,7 +52,6 @@ This project focuses on real-time ArUco marker detection and pose estimation usi
 
 ## Notes
 - The code uses camera parameters for a 720p resolution and 82.6° Field of View.
-- Adjust the camera index in `cv2.VideoCapture(1)` if necessary because we connected an external camera for better handeling.
 - The reference information is read from `data/output_data_video.csv`.
 
 
