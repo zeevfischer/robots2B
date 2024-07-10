@@ -11,7 +11,7 @@ There are 3 files in this reposetory:
 2. compare_video_to_stream: This takes a video instead of an image and gives you directions to follow the video. This is what we thought we needed to do.   
 3. The last file is a past version of compare_video_to_stream that I saved.
    
-This project focuses on real-time ArUco marker detection and pose estimation using a camera feed. It processes live video input to detect ArUco markers, calculate their 3D pose, and provide movement commands to align the camera with a reference image.
+This project focuses on real-time ArUco marker detection and pose estimation using a camera feed. It processes live video/image input to detect ArUco markers, calculate their 3D pose, and provide movement commands to align the camera with a reference image.
 
 ## Features
 - Real-time ArUco marker detection
